@@ -37,12 +37,12 @@
 
 .form-input {
   width: 100%;
-  padding: 1.5rem 1rem 0.5rem;
+  padding: 1.75rem 1rem 0.5rem;
   background-color: var(--bg-input);
   border: none;
   border-radius: 4px;
   color: white;
-  font-size: 1rem;
+  font-size: 1.1rem;
   outline: none;
   border-bottom: 2px solid transparent;
   transition: var(--transition);
@@ -68,7 +68,7 @@
 .form-input:not(:placeholder-shown) ~ .form-label {
   top: 0.4rem;
   transform: none;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
 }
 
