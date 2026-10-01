@@ -62,7 +62,7 @@ const Login = () => {
               value={formData.email}
               onChange={handleChange}
             />
-            <label htmlFor="email" className="form-label">Email or phone number</label>
+            <label htmlFor="email" className="form-label">Email address</label>
           </div>
           
           <div className="form-group">
