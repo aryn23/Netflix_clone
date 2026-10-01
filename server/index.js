@@ -38,18 +38,19 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
-async function startServer() {
-  try {
-    await initDatabase();
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
+// Initialize the database connection (non-blocking for Vercel)
+initDatabase().catch(err => {
+  console.error('Failed to initialize database:', err);
+});
+
+// If we are not running on Vercel, start the listener
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 }
 
-startServer();
+// Export the app for Vercel Serverless
+export default app;

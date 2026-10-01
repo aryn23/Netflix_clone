@@ -6,12 +6,15 @@ export async function initDatabase() {
   const { DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT, MYSQL_URL } = process.env;
 
   if (MYSQL_URL) {
-    // Railway gives us a direct connection string
+    // Aiven/Railway cloud database connection
     pool = mysql.createPool({
       uri: MYSQL_URL,
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
+      ssl: {
+        rejectUnauthorized: false
+      }
     });
   } else {
     // First connect without database to ensure it exists
