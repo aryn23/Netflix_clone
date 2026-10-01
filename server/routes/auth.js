@@ -154,7 +154,7 @@ router.post('/forgot-password', async (req, res) => {
 
     await pool.query('UPDATE users SET reset_token = ?, reset_expires_at = ? WHERE email = ?', [resetToken, resetExpires, email]);
 
-    const resetLink = `https://netflix-clone-opal-kappa.vercel.app/reset-password?token=${resetToken}`;
+    const resetLink = `https://netflix-clone-uqrz.vercel.app/reset-password?token=${resetToken}`;
     
     await sendEmail(
       email,
@@ -163,6 +163,9 @@ router.post('/forgot-password', async (req, res) => {
         <h1 style="color: #e50914;">Password Reset</h1>
         <p>You requested a password reset. Click the link below to set a new password:</p>
         <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background-color: #e50914; color: white; text-decoration: none; border-radius: 4px;">Reset Password</a>
+        <br><br>
+        <p>If the button above is blocked by Gmail, copy and paste this link into your browser:</p>
+        <p><strong>${resetLink}</strong></p>
         <p>This link will expire in 1 hour.</p>
         <p>If you did not request this, please ignore this email.</p>
       </div>`
