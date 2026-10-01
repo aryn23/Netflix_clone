@@ -52,6 +52,21 @@ export async function initDatabase() {
     )
   `);
 
+  // Helper to add columns safely without crashing if they already exist
+  const addColumnSafely = async (columnDef) => {
+    try {
+      await pool.query(`ALTER TABLE users ADD COLUMN ${columnDef}`);
+    } catch (err) {
+      if (err.code !== 'ER_DUP_FIELDNAME') throw err;
+    }
+  };
+
+  await addColumnSafely('is_verified BOOLEAN DEFAULT FALSE');
+  await addColumnSafely('otp_code VARCHAR(10)');
+  await addColumnSafely('otp_expires_at TIMESTAMP NULL');
+  await addColumnSafely('reset_token VARCHAR(255)');
+  await addColumnSafely('reset_expires_at TIMESTAMP NULL');
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS watchlist (
       id INT AUTO_INCREMENT PRIMARY KEY,

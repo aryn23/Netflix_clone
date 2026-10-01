@@ -56,7 +56,7 @@ const SignUp = () => {
     setIsSubmitting(false);
     
     if (result.success) {
-      navigate('/dashboard');
+      navigate('/verify-otp', { state: { email: formData.email } });
     } else {
       setApiError(result.error || 'Failed to sign up. Please try again.');
     }

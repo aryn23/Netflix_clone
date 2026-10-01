@@ -54,21 +54,31 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password })
       });
-      
       const data = await parseResponse(response);
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Signup failed');
-      }
+      if (!response.ok) throw new Error(data.error || 'Signup failed');
+      return { success: true, needsVerification: data.needsVerification };
+    } catch (error) {
+      if (error.message === 'Failed to fetch') return { success: false, error: 'Cannot connect to server. Make sure the backend is running.' };
+      return { success: false, error: error.message };
+    }
+  };
 
+  const verifyOtp = async (email, otp) => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp })
+      });
+      const data = await parseResponse(response);
+      if (!response.ok) throw new Error(data.error || 'Verification failed');
+      
       localStorage.setItem('netflix_token', data.token);
       setToken(data.token);
       setUser(data.user);
       return { success: true };
     } catch (error) {
-      if (error.message === 'Failed to fetch') {
-        return { success: false, error: 'Cannot connect to server. Make sure the backend is running.' };
-      }
+      if (error.message === 'Failed to fetch') return { success: false, error: 'Cannot connect to server.' };
       return { success: false, error: error.message };
     }
   };
@@ -80,10 +90,9 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-      
       const data = await parseResponse(response);
-      
       if (!response.ok) {
+        if (data.needsVerification) return { success: false, needsVerification: true, error: data.error };
         throw new Error(data.error || 'Login failed');
       }
 
@@ -92,10 +101,36 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       return { success: true };
     } catch (error) {
-      if (error.message === 'Failed to fetch') {
-        return { success: false, error: 'Cannot connect to server. Make sure the backend is running.' };
-      }
+      if (error.message === 'Failed to fetch') return { success: false, error: 'Cannot connect to server. Make sure the backend is running.' };
       return { success: false, error: error.message };
+    }
+  };
+
+  const forgotPassword = async (email) => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await parseResponse(response);
+      return { success: response.ok, message: data.message || data.error };
+    } catch (error) {
+      return { success: false, error: "Cannot connect to server." };
+    }
+  };
+
+  const resetPassword = async (tokenParam, newPassword) => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: tokenParam, newPassword })
+      });
+      const data = await parseResponse(response);
+      return { success: response.ok, message: data.message || data.error };
+    } catch (error) {
+      return { success: false, error: "Cannot connect to server." };
     }
   };
 
@@ -110,7 +145,10 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     signup,
+    verifyOtp,
     login,
+    forgotPassword,
+    resetPassword,
     logout
   };
 

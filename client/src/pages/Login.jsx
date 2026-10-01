@@ -37,6 +37,8 @@ const Login = () => {
     
     if (result.success) {
       navigate('/dashboard');
+    } else if (result.needsVerification) {
+      navigate('/verify-otp', { state: { email: formData.email } });
     } else {
       setError(result.error || 'Invalid email or password.');
     }
@@ -94,6 +96,7 @@ const Login = () => {
         
         <div className="auth-footer">
           <p>New to Netflix? <Link to="/signup">Sign up now</Link>.</p>
+          <p style={{ marginTop: '0.5rem' }}><Link to="/forgot-password" style={{ color: 'var(--text-secondary)' }}>Forgot password?</Link></p>
         </div>
       </div>
     </div>
