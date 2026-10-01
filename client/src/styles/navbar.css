@@ -1,0 +1,145 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: transparent;
+  transition: background-color 0.3s ease;
+}
+
+.navbar.scrolled {
+  background-color: var(--bg-dark);
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 4%;
+}
+
+.navbar-logo {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--netflix-red);
+  letter-spacing: -1px;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+}
+
+.btn-signin {
+  border: 1px solid white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  color: white;
+  background: transparent;
+  transition: var(--transition);
+}
+
+.btn-signin:hover {
+  background-color: white;
+  color: black;
+}
+
+.btn-signup {
+  background-color: var(--netflix-red);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  color: white;
+  border: none;
+  transition: var(--transition);
+}
+
+.btn-signup:hover {
+  background-color: var(--netflix-red-hover);
+}
+
+.user-menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: var(--netflix-red);
+  color: white;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.user-menu:hover .user-avatar {
+  transform: scale(1.1);
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  background-color: rgba(0, 0, 0, 0.9);
+  border: 1px solid #333;
+  width: 180px;
+  padding: 10px 0;
+  border-radius: 4px;
+  display: none;
+  flex-direction: column;
+  z-index: 1500;
+}
+
+.user-menu:hover .user-dropdown {
+  display: flex;
+}
+
+.user-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 12px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid white;
+}
+
+.dropdown-item {
+  padding: 10px 15px;
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  text-align: left;
+  width: 100%;
+}
+
+.dropdown-item:hover {
+  text-decoration: underline;
+}
+
+.btn-signout {
+  border-top: 1px solid #333;
+  margin-top: 5px;
+}
