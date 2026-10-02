@@ -37,8 +37,6 @@ const Login = () => {
     
     if (result.success) {
       navigate('/dashboard');
-    } else if (result.needsVerification) {
-      navigate('/verify-otp', { state: { email: formData.email } });
     } else {
       setError(result.error || 'Invalid email or password.');
     }

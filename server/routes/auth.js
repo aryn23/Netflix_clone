@@ -28,58 +28,36 @@ const sendEmail = async (to, subject, html) => {
   }
 };
 
-// 1. SIGNUP -> Generates user and sends OTP
+// 1. SIGNUP -> Creates user and logs them in instantly (No OTP)
 router.post('/signup', async (req, res) => {
   try {
     const { username, email, password } = req.body;
     if (!username || !email || !password) return res.status(400).json({ error: 'All fields are required' });
 
     const pool = getPool();
-    const [existing] = await pool.query('SELECT id, is_verified FROM users WHERE email = ?', [email]);
+    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
     
-    // Generate a 6-digit OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
-
     if (existing.length > 0) {
-      if (existing[0].is_verified) {
-        return res.status(400).json({ error: 'Email already exists' });
-      } else {
-        // User exists but not verified. Update OTP.
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await pool.query(
-          'UPDATE users SET password_hash = ?, otp_code = ?, otp_expires_at = ? WHERE email = ?',
-          [hashedPassword, otpCode, otpExpires, email]
-        );
-      }
-    } else {
-      // New user
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await pool.query(
-        'INSERT INTO users (username, email, password_hash, is_verified, otp_code, otp_expires_at) VALUES (?, ?, ?, false, ?, ?)',
-        [username, email, hashedPassword, otpCode, otpExpires]
-      );
+      return res.status(400).json({ error: 'Email already exists' });
     }
 
-    // Send the OTP Email
-    await sendEmail(
-      email,
-      'Your Netflix Clone Verification Code',
-      `<div style="font-family: sans-serif; padding: 20px;">
-        <h1 style="color: #e50914;">Welcome to Netflix Clone!</h1>
-        <p>Your verification code is: <strong>${otpCode}</strong></p>
-        <p>This code will expire in 15 minutes.</p>
-      </div>`
+    // New user (is_verified true by default now so they bypass old checks)
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const [result] = await pool.query(
+      'INSERT INTO users (username, email, password_hash, is_verified) VALUES (?, ?, ?, true)',
+      [username, email, hashedPassword]
     );
 
-    res.status(201).json({ message: 'Signup successful. Please verify your email with the OTP sent.', needsVerification: true });
+    // Log the user in securely right away
+    const token = jwt.sign({ id: result.insertId, username }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+    res.status(201).json({ token, user: { id: result.insertId, username, email } });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// 2. VERIFY OTP
+// 2. VERIFY OTP (Kept just in case, but no longer used in signup flow)
 router.post('/verify-otp', async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -110,7 +88,7 @@ router.post('/verify-otp', async (req, res) => {
   }
 });
 
-// 3. LOGIN
+// 3. LOGIN (No longer checks if verified)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -123,11 +101,7 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
 
-    // Check if verified
-    if (!user.is_verified) {
-      return res.status(403).json({ error: 'Please verify your email address first', needsVerification: true });
-    }
-
+    // Instantly log in without checking is_verified
     const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
     res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
   } catch (error) {

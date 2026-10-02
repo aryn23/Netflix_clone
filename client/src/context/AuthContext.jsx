@@ -56,7 +56,11 @@ export const AuthProvider = ({ children }) => {
       });
       const data = await parseResponse(response);
       if (!response.ok) throw new Error(data.error || 'Signup failed');
-      return { success: true, needsVerification: data.needsVerification };
+      
+      localStorage.setItem('netflix_token', data.token);
+      setToken(data.token);
+      setUser(data.user);
+      return { success: true };
     } catch (error) {
       if (error.message === 'Failed to fetch') return { success: false, error: 'Cannot connect to server. Make sure the backend is running.' };
       return { success: false, error: error.message };
@@ -91,10 +95,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password })
       });
       const data = await parseResponse(response);
-      if (!response.ok) {
-        if (data.needsVerification) return { success: false, needsVerification: true, error: data.error };
-        throw new Error(data.error || 'Login failed');
-      }
+      if (!response.ok) throw new Error(data.error || 'Login failed');
 
       localStorage.setItem('netflix_token', data.token);
       setToken(data.token);
